@@ -54,7 +54,6 @@
         .pitch-bg {
             background: radial-gradient(circle at center, #0e2319 0%, #060d09 100%);
         }
-        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -65,9 +64,6 @@
         ::-webkit-scrollbar-thumb {
             background: #1e293b;
             border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #334155;
         }
     </style>
 </head>
@@ -89,7 +85,6 @@
             </div>
         </div>
 
-        <!-- Navigation Tabs -->
         <nav class="flex items-center gap-1 bg-slate-950/80 p-1 rounded-xl border border-slate-800">
             <button id="navMatchesBtn" onclick="switchTab('matches')" class="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 bg-emerald-500 text-slate-950 shadow-sm">
                 <i class="fa-regular fa-calendar-days"></i> 試合カード
@@ -102,96 +97,84 @@
             </button>
         </nav>
 
-        <!-- Quick Controls -->
         <div class="flex items-center gap-2">
-            <button onclick="openModal('newMatchModal')" class="px-3.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs rounded-lg transition-all flex items-center gap-2 font-medium">
-                <i class="fa-solid fa-plus"></i> 新規カード追加
+            <button onclick="fetchLatestMatches()" title="APIから最新試合を同期" class="px-3 py-1.5 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-400 text-xs rounded-lg transition-all flex items-center gap-1.5 font-medium">
+                <i class="fa-solid fa-rotate"></i> 試合同期
             </button>
-            <button onclick="exportAllNotebookData()" title="データ書き出し" class="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 rounded-lg transition-all text-xs">
-                <i class="fa-solid fa-download"></i>
+            <button onclick="openModal('apiModal')" title="API設定" class="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 rounded-lg transition-all text-xs">
+                <i class="fa-solid fa-key"></i>
+            </button>
+            <button onclick="openModal('newMatchModal')" class="px-3.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs rounded-lg transition-all flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-plus"></i> 新規カード
             </button>
         </div>
     </header>
 
     <main class="flex-1 flex overflow-hidden relative">
 
-        <!-- ==================== VIEW 1: MATCH FIXTURES LIST ==================== -->
+        <!-- VIEW 1: MATCH FIXTURES LIST -->
         <section id="viewMatches" class="flex-1 flex flex-col p-6 overflow-y-auto space-y-6">
             
-            <!-- Filters Toolbar -->
             <div class="flex flex-col sm:flex-row gap-4 items-center justify-between border-b border-slate-800/80 pb-5">
-                <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
+                <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
                     <span class="text-xs font-mono text-slate-500 uppercase tracking-wider shrink-0">Filter:</span>
                     <button onclick="filterLeague('all')" class="league-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shrink-0">
                         すべて
                     </button>
-                    <button onclick="filterLeague('Premier League')" class="league-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-400 border border-slate-800 shrink-0">
+                    <button onclick="filterLeague('PL')" class="league-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-400 border border-slate-800 shrink-0">
                         Premier League
                     </button>
-                    <button onclick="filterLeague('UCL')" class="league-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-400 border border-slate-800 shrink-0">
-                        UEFA Champions League
-                    </button>
-                    <button onclick="filterLeague('La Liga')" class="league-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-400 border border-slate-800 shrink-0">
+                    <button onclick="filterLeague('PD')" class="league-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-400 border border-slate-800 shrink-0">
                         La Liga
                     </button>
-                    <button onclick="filterLeague('Serie A')" class="league-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-400 border border-slate-800 shrink-0">
+                    <button onclick="filterLeague('SA')" class="league-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-400 border border-slate-800 shrink-0">
                         Serie A
+                    </button>
+                    <button onclick="filterLeague('BL1')" class="league-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-400 border border-slate-800 shrink-0">
+                        Bundesliga
+                    </button>
+                    <button onclick="filterLeague('FL1')" class="league-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-400 border border-slate-800 shrink-0">
+                        Ligue 1
+                    </button>
+                    <button onclick="filterLeague('CL')" class="league-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-400 border border-slate-800 shrink-0">
+                        UCL
                     </button>
                 </div>
 
                 <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
                     <div class="relative w-full sm:w-64">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-500"></i>
-                        <input type="text" id="matchSearchInput" oninput="renderMatches()" placeholder="クラブ名・放送局で検索..." class="bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 w-full">
+                        <input type="text" id="matchSearchInput" oninput="renderMatches()" placeholder="クラブ名で検索..." class="bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 w-full">
                     </div>
                 </div>
             </div>
 
-            <!-- Matches Cards Grid -->
-            <div id="matchesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Injected dynamically via JavaScript -->
-            </div>
+            <div id="matchesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
 
-            <!-- Empty State -->
             <div id="matchesEmpty" class="hidden flex-1 flex flex-col items-center justify-center text-center p-12 text-slate-500">
                 <i class="fa-regular fa-futbol text-4xl mb-3 text-slate-700"></i>
-                <p class="text-sm font-medium text-slate-400">試合カードがまだ登録されていません</p>
-                <p class="text-xs text-slate-600 mt-1 max-w-sm">「新規カード追加」から対象の対戦カードを記録し、スコアを遮断した状態で戦術分析を始めましょう。</p>
+                <p class="text-sm font-medium text-slate-400">試合カードがありません</p>
+                <p class="text-xs text-slate-600 mt-1 max-w-sm">右上キーマークからAPIキーを設定後、「試合同期」を押すと5大リーグの最新試合が読み込まれます。</p>
             </div>
         </section>
 
-        <!-- ==================== VIEW 2: TACTICAL PITCH BOARD ==================== -->
+        <!-- VIEW 2: TACTICAL PITCH BOARD -->
         <section id="viewBoard" class="hidden flex-1 flex flex-col lg:flex-row overflow-hidden bg-slate-950">
-            
-            <!-- Tactical Pitch Canvas Container -->
             <div class="flex-1 relative pitch-bg pitch-grid flex items-center justify-center p-4 overflow-hidden select-none">
-                
-                <!-- SVG Pitch Markings Layer -->
                 <svg id="pitchMarkingsSvg" class="absolute inset-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] pointer-events-none" viewBox="0 0 800 500" preserveAspectRatio="none">
-                    <!-- Outer Boundary -->
                     <rect x="20" y="20" width="760" height="460" fill="none" stroke="#1e4b35" stroke-width="2" opacity="0.9"/>
-                    <!-- Halfway Line -->
                     <line x1="400" y1="20" x2="400" y2="480" stroke="#1e4b35" stroke-width="2" opacity="0.9"/>
-                    <!-- Center Circle & Spot -->
                     <circle cx="400" cy="250" r="65" fill="none" stroke="#1e4b35" stroke-width="2" opacity="0.9"/>
                     <circle cx="400" cy="250" r="3" fill="#1e4b35"/>
-                    <!-- Left Penalty Box -->
                     <rect x="20" y="115" width="120" height="270" fill="none" stroke="#1e4b35" stroke-width="2" opacity="0.9"/>
                     <rect x="20" y="185" width="40" height="130" fill="none" stroke="#1e4b35" stroke-width="2" opacity="0.9"/>
-                    <!-- Right Penalty Box -->
                     <rect x="660" y="115" width="120" height="270" fill="none" stroke="#1e4b35" stroke-width="2" opacity="0.9"/>
                     <rect x="740" y="185" width="40" height="130" fill="none" stroke="#1e4b35" stroke-width="2" opacity="0.9"/>
                 </svg>
 
-                <!-- Freehand Tactical Canvas Layer -->
                 <canvas id="pitchCanvas" class="absolute inset-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] cursor-crosshair z-10"></canvas>
+                <div id="playersOverlay" class="absolute inset-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] z-20 pointer-events-none"></div>
 
-                <!-- Draggable Player Nodes Overlay Layer -->
-                <div id="playersOverlay" class="absolute inset-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] z-20 pointer-events-none">
-                    <!-- Player nodes rendered dynamically -->
-                </div>
-
-                <!-- Floating Canvas Drawing Toolbar -->
                 <div class="absolute bottom-6 left-6 z-30 flex items-center gap-2 bg-slate-900/90 border border-slate-800 p-2 rounded-xl backdrop-blur-md shadow-2xl">
                     <button onclick="setDrawTool('arrow')" id="toolArrowBtn" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-500 text-slate-950 shadow">
                         <i class="fa-solid fa-arrow-right"></i> 移動矢印
@@ -201,19 +184,17 @@
                     </button>
                     <div class="w-px h-4 bg-slate-800 my-auto"></div>
                     <button onclick="clearCanvasLines()" class="px-3 py-1.5 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all">
-                        <i class="fa-solid fa-eraser"></i> 線を全消去
+                        <i class="fa-solid fa-eraser"></i> 線を消去
                     </button>
                 </div>
             </div>
 
-            <!-- Pitch Settings & Tactics Control Panel -->
             <div class="w-full lg:w-80 border-t lg:border-t-0 lg:border-l border-slate-800 bg-slate-900/90 p-5 flex flex-col gap-5 shrink-0 overflow-y-auto">
                 <div>
                     <span class="text-[10px] font-mono uppercase tracking-wider text-emerald-400">Board Setup</span>
                     <h2 class="text-sm font-semibold text-slate-200">フォーメーション & 作戦配置</h2>
                 </div>
 
-                <!-- Associated Match Select -->
                 <div class="space-y-1.5">
                     <label class="text-xs font-medium text-slate-400">対象の試合カードを選択</label>
                     <select id="boardMatchSelect" onchange="onBoardMatchSelectChange()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50">
@@ -221,7 +202,6 @@
                     </select>
                 </div>
 
-                <!-- Team Display Selection -->
                 <div class="space-y-1.5">
                     <label class="text-xs font-medium text-slate-400">表示チーム配置</label>
                     <div class="grid grid-cols-2 gap-2">
@@ -234,93 +214,58 @@
                     </div>
                 </div>
 
-                <!-- Formation Presets -->
                 <div class="space-y-2">
-                    <label class="text-xs font-medium text-slate-400">フォーメーション・プリセット</label>
+                    <label class="text-xs font-medium text-slate-400">フォーメーション</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="applyFormationPreset('4-3-3')" class="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 font-mono text-center transition-all">4-3-3</button>
-                        <button onclick="applyFormationPreset('4-2-3-1')" class="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 font-mono text-center transition-all">4-2-3-1</button>
-                        <button onclick="applyFormationPreset('3-4-2-1')" class="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 font-mono text-center transition-all">3-4-2-1</button>
-                        <button onclick="applyFormationPreset('3-5-2')" class="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 font-mono text-center transition-all">3-5-2</button>
-                        <button onclick="applyFormationPreset('4-4-2')" class="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 font-mono text-center transition-all">4-4-2</button>
-                        <button onclick="applyFormationPreset('5-4-1')" class="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 font-mono text-center transition-all">5-4-1</button>
+                        <button onclick="applyFormationPreset('4-3-3')" class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-300 font-mono text-center">4-3-3</button>
+                        <button onclick="applyFormationPreset('4-2-3-1')" class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-300 font-mono text-center">4-2-3-1</button>
+                        <button onclick="applyFormationPreset('3-4-2-1')" class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-300 font-mono text-center">3-4-2-1</button>
+                        <button onclick="applyFormationPreset('3-5-2')" class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-300 font-mono text-center">3-5-2</button>
+                        <button onclick="applyFormationPreset('4-4-2')" class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-300 font-mono text-center">4-4-2</button>
+                        <button onclick="applyFormationPreset('5-4-1')" class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-300 font-mono text-center">5-4-1</button>
                     </div>
                 </div>
 
-                <!-- Save Action Button -->
-                <div class="pt-4 border-t border-slate-800 flex flex-col gap-2">
+                <div class="pt-4 border-t border-slate-800">
                     <button onclick="saveCurrentBoardToMatch()" class="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold rounded-lg text-xs transition-all shadow-md flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-floppy-disk"></i> この配置・線を試合ログに保存
+                        <i class="fa-solid fa-floppy-disk"></i> この配置・線を保存
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- ==================== VIEW 3: OBSERVATION LOGS ==================== -->
+        <!-- VIEW 3: OBSERVATION LOGS -->
         <section id="viewLogs" class="hidden flex-1 flex flex-col p-6 overflow-y-auto space-y-6">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-                <div>
-                    <h2 class="text-base font-semibold text-slate-200">戦術考察・観戦ノート</h2>
-                    <p class="text-xs text-slate-400">試合結果の数値（スコア）を出さず、ピッチ上の構造だけを記録します。</p>
-                </div>
-            </div>
-
-            <!-- Active Match Observation Editor -->
             <div id="logEditor" class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-6">
-                <!-- Dynamic Header -->
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-4 gap-2">
                     <div>
                         <span id="logLeagueTag" class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">対象カード未選択</span>
-                        <h3 id="logTitle" class="text-xl font-bold text-slate-100 mt-1">カード一覧から対象の試合を選択してください</h3>
+                        <h3 id="logTitle" class="text-xl font-bold text-slate-100 mt-1">試合カードを選択してください</h3>
                         <p id="logSubtext" class="text-xs text-slate-500 font-mono">---</p>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="exportSingleLogToTxt()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs rounded-lg transition-all flex items-center gap-1.5">
-                            <i class="fa-solid fa-file-export"></i> テキストで書き出し
-                        </button>
-                    </div>
                 </div>
 
-                <!-- Structured Tactical Input Fields -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    <!-- Build-up Section -->
                     <div class="space-y-2">
-                        <label class="text-xs font-semibold text-slate-300 flex items-center gap-2">
-                            <i class="fa-solid fa-shield-halved text-emerald-400"></i> ビルドアップ構造 & プレス回避
-                        </label>
-                        <textarea id="logBuildUp" rows="4" placeholder="（例）後方3-2でのビルドアップ。相手の第1ラインを超えられない場合のロングボールの出口や、サイドバックの絞り込み方など..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 resize-none"></textarea>
+                        <label class="text-xs font-semibold text-slate-300 flex items-center gap-2"><i class="fa-solid fa-shield-halved text-emerald-400"></i> ビルドアップ & プレス回避</label>
+                        <textarea id="logBuildUp" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 resize-none"></textarea>
                     </div>
-
-                    <!-- Defensive Block Section -->
                     <div class="space-y-2">
-                        <label class="text-xs font-semibold text-slate-300 flex items-center gap-2">
-                            <i class="fa-solid fa-chess-rook text-emerald-400"></i> 守備ブロック & 撤退・奪還構造
-                        </label>
-                        <textarea id="logDefensive" rows="4" placeholder="（例）ミドルブロック 4-4-2。サイドに追い込んでからのネガティブトランジション、ライン間のコンパクトさ..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 resize-none"></textarea>
+                        <label class="text-xs font-semibold text-slate-300 flex items-center gap-2"><i class="fa-solid fa-chess-rook text-emerald-400"></i> 守備ブロック & 撤退構造</label>
+                        <textarea id="logDefensive" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 resize-none"></textarea>
                     </div>
-
-                    <!-- Individual Tactical Roles -->
                     <div class="space-y-2">
-                        <label class="text-xs font-semibold text-slate-300 flex items-center gap-2">
-                            <i class="fa-solid fa-user-gear text-emerald-400"></i> キープレイヤーのタスク・個の役割
-                        </label>
-                        <textarea id="logPlayers" rows="4" placeholder="（例）インサイドハーフのハーフスペース突撃、ウイングのアイソレーション作成、アンカーの危機管理..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 resize-none"></textarea>
+                        <label class="text-xs font-semibold text-slate-300 flex items-center gap-2"><i class="fa-solid fa-user-gear text-emerald-400"></i> 個のタスク・キーマン</label>
+                        <textarea id="logPlayers" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 resize-none"></textarea>
                     </div>
-
-                    <!-- General Observations & Tactical Takeaways -->
                     <div class="space-y-2">
-                        <label class="text-xs font-semibold text-slate-300 flex items-center gap-2">
-                            <i class="fa-solid fa-lightbulb text-emerald-400"></i> 総合戦術総括・学習ポイント
-                        </label>
-                        <textarea id="logSummary" rows="4" placeholder="この試合から得られた戦術的気づきや構造のまとめ..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 resize-none"></textarea>
+                        <label class="text-xs font-semibold text-slate-300 flex items-center gap-2"><i class="fa-solid fa-lightbulb text-emerald-400"></i> 総合戦術総括</label>
+                        <textarea id="logSummary" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 resize-none"></textarea>
                     </div>
-
                 </div>
 
-                <!-- Save Action -->
                 <div class="flex justify-end border-t border-slate-800 pt-4">
-                    <button onclick="saveActiveMatchLog()" class="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold rounded-lg text-xs transition-all shadow-lg flex items-center gap-2">
+                    <button onclick="saveActiveMatchLog()" class="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold rounded-lg text-xs shadow-lg flex items-center gap-2">
                         <i class="fa-solid fa-check"></i> 考察ログを保存
                     </button>
                 </div>
@@ -329,310 +274,193 @@
 
     </main>
 
-    <!-- MODAL: Create New Match Fixture -->
-    <div id="newMatchModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <!-- MODAL: API Key Setting -->
+    <div id="apiModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
-                    <i class="fa-regular fa-calendar-plus text-emerald-400"></i> 試合カードの新規記録
+                    <i class="fa-solid fa-key text-sky-400"></i> Football-Data.org API設定
                 </h3>
-                <button onclick="closeModal('newMatchModal')" class="text-slate-500 hover:text-slate-300 text-xs">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <button onclick="closeModal('apiModal')" class="text-slate-500 hover:text-slate-300 text-xs"><i class="fa-solid fa-xmark"></i></button>
             </div>
+            <div class="space-y-2">
+                <label class="text-xs text-slate-400">API Token (Key)</label>
+                <input type="password" id="apiKeyInput" placeholder="取得したAPIキーを貼り付け" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
+                <p class="text-[11px] text-slate-500 leading-relaxed">
+                    football-data.org で無料登録して取得したトークンを入力してください。ブラウザ内に安全に保存されます。
+                </p>
+            </div>
+            <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                <button onclick="closeModal('apiModal')" class="px-3 py-1.5 text-xs text-slate-400">キャンセル</button>
+                <button onclick="saveApiKey()" class="px-4 py-1.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold text-xs rounded-lg">保存する</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- MODAL: Create New Match -->
+    <div id="newMatchModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-slate-100"><i class="fa-regular fa-calendar-plus text-emerald-400"></i> 手動カード追加</h3>
+                <button onclick="closeModal('newMatchModal')" class="text-slate-500 hover:text-slate-300 text-xs"><i class="fa-solid fa-xmark"></i></button>
+            </div>
             <form id="newMatchForm" onsubmit="handleNewMatchSubmit(event)" class="space-y-3">
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[11px] font-medium text-slate-400">ホームチーム</label>
-                        <input type="text" id="inputHome" required placeholder="例: Arsenal" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50">
-                    </div>
-                    <div>
-                        <label class="text-[11px] font-medium text-slate-400">アウェイチーム</label>
-                        <input type="text" id="inputAway" required placeholder="例: Real Madrid" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50">
-                    </div>
+                    <input type="text" id="inputHome" required placeholder="ホームチーム" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200">
+                    <input type="text" id="inputAway" required placeholder="アウェイチーム" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200">
                 </div>
-
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[11px] font-medium text-slate-400">キックオフ日付</label>
-                        <input type="date" id="inputDate" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50">
-                    </div>
-                    <div>
-                        <label class="text-[11px] font-medium text-slate-400">時間</label>
-                        <input type="time" id="inputTime" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50">
-                    </div>
+                    <input type="date" id="inputDate" required class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200">
+                    <input type="time" id="inputTime" required class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200">
                 </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[11px] font-medium text-slate-400">大会・リーグ</label>
-                        <select id="inputLeague" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50">
-                            <option value="Premier League">Premier League</option>
-                            <option value="UCL">UEFA Champions League</option>
-                            <option value="La Liga">La Liga</option>
-                            <option value="Serie A">Serie A</option>
-                            <option value="Bundesliga">Bundesliga</option>
-                            <option value="International">International</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-[11px] font-medium text-slate-400">放送局・配信プラットフォーム</label>
-                        <input type="text" id="inputChannel" placeholder="例: SPOTV, U-NEXT, Abema" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50">
-                    </div>
-                </div>
-
+                <select id="inputLeague" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200">
+                    <option value="PL">Premier League</option>
+                    <option value="PD">La Liga</option>
+                    <option value="SA">Serie A</option>
+                    <option value="BL1">Bundesliga</option>
+                    <option value="FL1">Ligue 1</option>
+                    <option value="CL">UEFA Champions League</option>
+                </select>
                 <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
-                    <button type="button" onclick="closeModal('newMatchModal')" class="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200">キャンセル</button>
-                    <button type="submit" class="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs rounded-lg transition-all">保存する</button>
+                    <button type="button" onclick="closeModal('newMatchModal')" class="px-3 py-1.5 text-xs text-slate-400">キャンセル</button>
+                    <button type="submit" class="px-4 py-1.5 bg-emerald-500 text-slate-950 font-semibold text-xs rounded-lg">保存</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // --- Core Application State ---
         let matches = [];
         let activeMatchId = null;
         let activeLeagueFilter = 'all';
+        let apiKey = localStorage.getItem('tactico_api_key') || '';
 
-        // Board & Canvas State
         let currentDrawTool = 'arrow';
         let isDrawing = false;
-        let startX = 0;
-        let startY = 0;
+        let startX = 0, startY = 0;
         let canvasLines = [];
-        let selectedBoardSide = 'home'; // 'home' or 'away'
+        let selectedBoardSide = 'home';
 
-        // Formation Presets (X/Y Percentage coordinates)
         const formations = {
-            '4-3-3': [
-                { id: 1, name: 'GK', x: 8, y: 50 },
-                { id: 2, name: 'RB', x: 28, y: 18 },
-                { id: 3, name: 'CB', x: 22, y: 38 },
-                { id: 4, name: 'CB', x: 22, y: 62 },
-                { id: 5, name: 'LB', x: 28, y: 82 },
-                { id: 6, name: 'DM', x: 42, y: 50 },
-                { id: 7, name: 'CM', x: 55, y: 32 },
-                { id: 8, name: 'CM', x: 55, y: 68 },
-                { id: 9, name: 'RW', x: 78, y: 20 },
-                { id: 10, name: 'ST', x: 84, y: 50 },
-                { id: 11, name: 'LW', x: 78, y: 80 }
-            ],
-            '4-2-3-1': [
-                { id: 1, name: 'GK', x: 8, y: 50 },
-                { id: 2, name: 'RB', x: 28, y: 18 },
-                { id: 3, name: 'CB', x: 22, y: 38 },
-                { id: 4, name: 'CB', x: 22, y: 62 },
-                { id: 5, name: 'LB', x: 28, y: 82 },
-                { id: 6, name: 'DM', x: 40, y: 35 },
-                { id: 7, name: 'DM', x: 40, y: 65 },
-                { id: 8, name: 'RAM', x: 65, y: 22 },
-                { id: 9, name: 'CAM', x: 68, y: 50 },
-                { id: 10, name: 'LAM', x: 65, y: 78 },
-                { id: 11, name: 'ST', x: 84, y: 50 }
-            ],
-            '3-4-2-1': [
-                { id: 1, name: 'GK', x: 8, y: 50 },
-                { id: 2, name: 'CB', x: 22, y: 25 },
-                { id: 3, name: 'CB', x: 20, y: 50 },
-                { id: 4, name: 'CB', x: 22, y: 75 },
-                { id: 5, name: 'RWB', x: 48, y: 12 },
-                { id: 6, name: 'CM', x: 42, y: 38 },
-                { id: 7, name: 'CM', x: 42, y: 62 },
-                { id: 8, name: 'LWB', x: 48, y: 88 },
-                { id: 9, name: 'RAM', x: 68, y: 32 },
-                { id: 10, name: 'LAM', x: 68, y: 68 },
-                { id: 11, name: 'ST', x: 84, y: 50 }
-            ],
-            '3-5-2': [
-                { id: 1, name: 'GK', x: 8, y: 50 },
-                { id: 2, name: 'CB', x: 22, y: 25 },
-                { id: 3, name: 'CB', x: 20, y: 50 },
-                { id: 4, name: 'CB', x: 22, y: 75 },
-                { id: 5, name: 'RWB', x: 50, y: 12 },
-                { id: 6, name: 'CM', x: 45, y: 35 },
-                { id: 7, name: 'DM', x: 38, y: 50 },
-                { id: 8, name: 'CM', x: 45, y: 65 },
-                { id: 9, name: 'LWB', x: 50, y: 88 },
-                { id: 10, name: 'ST', x: 80, y: 38 },
-                { id: 11, name: 'ST', x: 80, y: 62 }
-            ],
-            '4-4-2': [
-                { id: 1, name: 'GK', x: 8, y: 50 },
-                { id: 2, name: 'RB', x: 28, y: 18 },
-                { id: 3, name: 'CB', x: 22, y: 38 },
-                { id: 4, name: 'CB', x: 22, y: 62 },
-                { id: 5, name: 'LB', x: 28, y: 82 },
-                { id: 6, name: 'RM', x: 52, y: 18 },
-                { id: 7, name: 'CM', x: 48, y: 38 },
-                { id: 8, name: 'CM', x: 48, y: 62 },
-                { id: 9, name: 'LM', x: 52, y: 82 },
-                { id: 10, name: 'ST', x: 80, y: 38 },
-                { id: 11, name: 'ST', x: 80, y: 62 }
-            ],
-            '5-4-1': [
-                { id: 1, name: 'GK', x: 8, y: 50 },
-                { id: 2, name: 'RWB', x: 30, y: 15 },
-                { id: 3, name: 'CB', x: 22, y: 32 },
-                { id: 4, name: 'CB', x: 20, y: 50 },
-                { id: 5, name: 'CB', x: 22, y: 68 },
-                { id: 6, name: 'LWB', x: 30, y: 85 },
-                { id: 7, name: 'RM', x: 52, y: 22 },
-                { id: 8, name: 'CM', x: 45, y: 40 },
-                { id: 9, name: 'CM', x: 45, y: 60 },
-                { id: 10, name: 'LM', x: 52, y: 78 },
-                { id: 11, name: 'ST', x: 80, y: 50 }
-            ]
+            '4-3-3': [{id:1,name:'GK',x:8,y:50},{id:2,name:'RB',x:28,y:18},{id:3,name:'CB',x:22,y:38},{id:4,name:'CB',x:22,y:62},{id:5,name:'LB',x:28,y:82},{id:6,name:'DM',x:42,y:50},{id:7,name:'CM',x:55,y:32},{id:8,name:'CM',x:55,y:68},{id:9,name:'RW',x:78,y:20},{id:10,name:'ST',x:84,y:50},{id:11,name:'LW',x:78,y:80}],
+            '4-2-3-1': [{id:1,name:'GK',x:8,y:50},{id:2,name:'RB',x:28,y:18},{id:3,name:'CB',x:22,y:38},{id:4,name:'CB',x:22,y:62},{id:5,name:'LB',x:28,y:82},{id:6,name:'DM',x:40,y:35},{id:7,name:'DM',x:40,y:65},{id:8,name:'RAM',x:65,y:22},{id:9,name:'CAM',x:68,y:50},{id:10,name:'LAM',x:65,y:78},{id:11,name:'ST',x:84,y:50}]
         };
 
         let currentPlayers = JSON.parse(JSON.stringify(formations['4-3-3']));
 
-        // --- Initialization ---
         window.onload = function() {
             loadLocalData();
             initPitchCanvas();
             renderMatches();
             updateBoardMatchDropdown();
-            applyFormationPreset('4-3-3');
+            if (apiKey) document.getElementById('apiKeyInput').value = apiKey;
         };
 
         function loadLocalData() {
             const data = localStorage.getItem('tactico_matches_data');
-            if (data) {
-                try {
-                    matches = JSON.parse(data);
-                } catch(e) {
-                    matches = getSampleMatches();
-                }
-            } else {
-                matches = getSampleMatches();
-            }
+            if (data) matches = JSON.parse(data);
         }
 
         function saveLocalData() {
             localStorage.setItem('tactico_matches_data', JSON.stringify(matches));
         }
 
-        function getSampleMatches() {
-            return [
-                {
-                    id: 'm1',
-                    home: 'Arsenal',
-                    away: 'Manchester City',
-                    date: '2026-09-27',
-                    time: '00:30',
-                    league: 'Premier League',
-                    channel: 'SPOTV NOW',
-                    buildUp: 'Arsenalは後方3-2（左SBが内側へ絞る）でプレス回避。対するシティは4-4-2のミドルブロックで中央を切る構造。',
-                    defensive: 'ハイプレス時はライスが前に出て相手の底を遮断。撤退時は5-4-1に近いコンパクトなブロックを形成。',
-                    players: 'サカが右サイドで孤立を作る動き。ウーデゴールはビルドアップの出口として頻繁に降りてボールをリンク。',
-                    summary: '得点結果を一切気にせず、両チームのハーフスペースの奪い合いとポジショニングにフォーカスできた一戦。',
-                    lines: []
-                },
-                {
-                    id: 'm2',
-                    home: 'Real Madrid',
-                    away: 'FC Barcelona',
-                    date: '2026-10-04',
-                    time: '04:00',
-                    league: 'La Liga',
-                    channel: 'U-NEXT',
-                    buildUp: '',
-                    defensive: '',
-                    players: '',
-                    summary: '',
-                    lines: []
-                }
-            ];
+        function saveApiKey() {
+            apiKey = document.getElementById('apiKeyInput').value.trim();
+            localStorage.setItem('tactico_api_key', apiKey);
+            closeModal('apiModal');
+            alert('APIキーを保存しました。「試合同期」ボタンを押して試合データを取得してください。');
         }
 
-        // --- Navigation Tab Switcher ---
+        async function fetchLatestMatches() {
+            if (!apiKey) {
+                openModal('apiModal');
+                return;
+            }
+
+            const leagues = ['PL', 'PD', 'SA', 'BL1', 'FL1', 'CL'];
+            let newFetched = 0;
+
+            for (const code of leagues) {
+                try {
+                    const res = await fetch(`https://api.football-data.org/v4/competitions/${code}/matches?status=SCHEDULED,LIVE,FINISHED`, {
+                        headers: { 'X-Auth-Token': apiKey }
+                    });
+                    if (!res.ok) continue;
+                    const data = await res.json();
+                    
+                    if (data.matches) {
+                        data.matches.slice(0, 10).forEach(m => {
+                            if (!matches.some(existing => existing.id === `api_${m.id}`)) {
+                                matches.unshift({
+                                    id: `api_${m.id}`,
+                                    home: m.homeTeam.shortName || m.homeTeam.name,
+                                    away: m.awayTeam.shortName || m.awayTeam.name,
+                                    date: m.utcDate.slice(0, 10),
+                                    time: m.utcDate.slice(11, 16),
+                                    league: code,
+                                    channel: 'API取得',
+                                    buildUp: '', defensive: '', players: '', summary: '', lines: []
+                                });
+                                newFetched++;
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.error('API Error:', e);
+                }
+            }
+
+            saveLocalData();
+            renderMatches();
+            updateBoardMatchDropdown();
+            alert(`${newFetched} 件の新しい試合情報を同期しました！`);
+        }
+
         function switchTab(tab) {
             document.getElementById('viewMatches').classList.add('hidden');
             document.getElementById('viewBoard').classList.add('hidden');
             document.getElementById('viewLogs').classList.add('hidden');
 
-            document.getElementById('navMatchesBtn').className = "px-4 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all flex items-center gap-2";
-            document.getElementById('navBoardBtn').className = "px-4 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all flex items-center gap-2";
-            document.getElementById('navLogsBtn').className = "px-4 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all flex items-center gap-2";
-
-            if (tab === 'matches') {
-                document.getElementById('viewMatches').classList.remove('hidden');
-                document.getElementById('navMatchesBtn').className = "px-4 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-slate-950 transition-all flex items-center gap-2 shadow-sm";
-            } else if (tab === 'board') {
-                document.getElementById('viewBoard').classList.remove('hidden');
-                document.getElementById('navBoardBtn').className = "px-4 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-slate-950 transition-all flex items-center gap-2 shadow-sm";
-                resizePitchCanvas();
-            } else if (tab === 'logs') {
-                document.getElementById('viewLogs').classList.remove('hidden');
-                document.getElementById('navLogsBtn').className = "px-4 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-slate-950 transition-all flex items-center gap-2 shadow-sm";
-            }
+            if (tab === 'matches') document.getElementById('viewMatches').classList.remove('hidden');
+            if (tab === 'board') { document.getElementById('viewBoard').classList.remove('hidden'); resizePitchCanvas(); }
+            if (tab === 'logs') document.getElementById('viewLogs').classList.remove('hidden');
         }
 
-        // --- Match Cards Renderer ---
         function renderMatches() {
             const grid = document.getElementById('matchesGrid');
             const empty = document.getElementById('matchesEmpty');
             const search = document.getElementById('matchSearchInput').value.toLowerCase();
 
             grid.innerHTML = '';
-
             const filtered = matches.filter(m => {
                 const matchesLeague = activeLeagueFilter === 'all' || m.league === activeLeagueFilter;
-                const matchesSearch = m.home.toLowerCase().includes(search) || 
-                                      m.away.toLowerCase().includes(search) || 
-                                      (m.channel && m.channel.toLowerCase().includes(search));
+                const matchesSearch = m.home.toLowerCase().includes(search) || m.away.toLowerCase().includes(search);
                 return matchesLeague && matchesSearch;
             });
 
             if (filtered.length === 0) {
-                grid.classList.add('hidden');
-                empty.classList.remove('hidden');
-                return;
+                grid.classList.add('hidden'); empty.classList.remove('hidden'); return;
             }
 
-            grid.classList.remove('hidden');
-            empty.classList.add('hidden');
-
+            grid.classList.remove('hidden'); empty.classList.add('hidden');
             filtered.forEach(m => {
                 const card = document.createElement('div');
-                card.className = "bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl p-5 flex flex-col justify-between transition-all hover:shadow-xl group";
+                card.className = "bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between";
                 card.innerHTML = `
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
                             <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-950 text-slate-400 border border-slate-800">${m.league}</span>
-                            <span class="text-[10px] font-mono text-emerald-400 border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 rounded">
-                                <i class="fa-solid fa-eye-slash"></i> スコア非表示
-                            </span>
+                            <span class="text-[10px] font-mono text-emerald-400 border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 rounded"><i class="fa-solid fa-eye-slash"></i> スコア非表示</span>
                         </div>
-
-                        <!-- Non-Spoiler Team Card Header (STRICTLY NO GOALS/SCORES) -->
-                        <div class="py-3 border-y border-slate-800/80 flex items-center justify-between">
-                            <div class="flex-1 font-bold text-slate-100 text-base tracking-tight">${m.home}</div>
-                            <div class="px-3 text-xs font-mono text-slate-500 font-semibold uppercase">VS</div>
-                            <div class="flex-1 font-bold text-slate-100 text-base tracking-tight text-right">${m.away}</div>
+                        <div class="py-3 border-y border-slate-800/80 flex items-center justify-between font-bold text-slate-100 text-base">
+                            <div>${m.home}</div><div class="text-xs text-slate-500">VS</div><div>${m.away}</div>
                         </div>
-
-                        <div class="flex items-center justify-between text-xs text-slate-400 font-mono">
-                            <div class="flex items-center gap-1.5">
-                                <i class="fa-regular fa-clock text-emerald-400"></i>
-                                <span>${m.date} ${m.time}</span>
-                            </div>
-                            <div class="flex items-center gap-1.5 text-slate-500">
-                                <i class="fa-solid fa-tv"></i>
-                                <span>${m.channel || '未設定'}</span>
-                            </div>
-                        </div>
+                        <div class="text-xs text-slate-400 font-mono"><i class="fa-regular fa-clock text-emerald-400"></i> ${m.date} ${m.time}</div>
                     </div>
-
-                    <div class="mt-5 pt-3 border-t border-slate-800/60 flex items-center gap-2 justify-end">
-                        <button onclick="openBoardForMatch('${m.id}')" class="px-3 py-1.5 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-300 text-xs font-medium border border-slate-800 transition-all flex items-center gap-1.5">
-                            <i class="fa-solid fa-chess-board text-emerald-400"></i> 作戦配置
-                        </button>
-                        <button onclick="openLogForMatch('${m.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-medium border border-emerald-500/20 transition-all flex items-center gap-1.5">
-                            <i class="fa-regular fa-pen-to-square"></i> 考察を書く
-                        </button>
+                    <div class="mt-4 pt-3 border-t border-slate-800 flex items-center gap-2 justify-end">
+                        <button onclick="openBoardForMatch('${m.id}')" class="px-3 py-1.5 rounded-lg bg-slate-950 text-slate-300 text-xs border border-slate-800"><i class="fa-solid fa-chess-board text-emerald-400"></i> 配置</button>
+                        <button onclick="openLogForMatch('${m.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs border border-emerald-500/20"><i class="fa-regular fa-pen-to-square"></i> 考察</button>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -641,351 +469,123 @@
 
         function filterLeague(league) {
             activeLeagueFilter = league;
-            document.querySelectorAll('.league-btn').forEach(btn => {
-                btn.className = "league-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-400 border border-slate-800 shrink-0";
-            });
-            event.target.className = "league-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shrink-0";
             renderMatches();
         }
 
-        // --- Pitch Freehand Canvas Controls ---
         function initPitchCanvas() {
             const canvas = document.getElementById('pitchCanvas');
             window.addEventListener('resize', resizePitchCanvas);
-
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', drawLinePreview);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseleave', stopDrawing);
+            canvas.addEventListener('mousedown', (e) => { isDrawing = true; const r = canvas.getBoundingClientRect(); startX = e.clientX - r.left; startY = e.clientY - r.top; });
+            canvas.addEventListener('mousemove', (e) => {
+                if (!isDrawing) return;
+                const r = canvas.getBoundingClientRect();
+                redrawCanvas();
+                const ctx = canvas.getContext('2d');
+                ctx.beginPath(); ctx.strokeStyle = '#34d399'; ctx.lineWidth = 2.5;
+                if (currentDrawTool === 'pass') ctx.setLineDash([6, 6]); else ctx.setLineDash([]);
+                ctx.moveTo(startX, startY); ctx.lineTo(e.clientX - r.left, e.clientY - r.top); ctx.stroke();
+            });
+            canvas.addEventListener('mouseup', (e) => {
+                if (!isDrawing) return; isDrawing = false;
+                const r = canvas.getBoundingClientRect();
+                canvasLines.push({ x1: startX, y1: startY, x2: e.clientX - r.left, y2: e.clientY - r.top, tool: currentDrawTool });
+                redrawCanvas();
+            });
         }
 
         function resizePitchCanvas() {
             const canvas = document.getElementById('pitchCanvas');
-            const parent = canvas.parentElement;
-            if (!parent) return;
-            canvas.width = parent.clientWidth;
-            canvas.height = parent.clientHeight;
+            if (!canvas.parentElement) return;
+            canvas.width = canvas.parentElement.clientWidth; canvas.height = canvas.parentElement.clientHeight;
             redrawCanvas();
         }
 
-        function setDrawTool(tool) {
-            currentDrawTool = tool;
-            document.getElementById('toolArrowBtn').className = tool === 'arrow'
-                ? "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-500 text-slate-950 shadow"
-                : "px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800";
-
-            document.getElementById('toolPassBtn').className = tool === 'pass'
-                ? "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-500 text-slate-950 shadow"
-                : "px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800";
-        }
-
-        function startDrawing(e) {
-            isDrawing = true;
-            const rect = e.target.getBoundingClientRect();
-            startX = e.clientX - rect.left;
-            startY = e.clientY - rect.top;
-        }
-
-        function drawLinePreview(e) {
-            if (!isDrawing) return;
-            const canvas = document.getElementById('pitchCanvas');
-            const ctx = canvas.getContext('2d');
-            const rect = canvas.getBoundingClientRect();
-            const currX = e.clientX - rect.left;
-            const currY = e.clientY - rect.top;
-
-            redrawCanvas();
-
-            ctx.beginPath();
-            ctx.strokeStyle = '#34d399';
-            ctx.lineWidth = 2.5;
-
-            if (currentDrawTool === 'pass') {
-                ctx.setLineDash([6, 6]);
-            } else {
-                ctx.setLineDash([]);
-            }
-
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(currX, currY);
-            ctx.stroke();
-
-            if (currentDrawTool === 'arrow') {
-                drawArrowHead(ctx, startX, startY, currX, currY);
-            }
-        }
-
-        function stopDrawing(e) {
-            if (!isDrawing) return;
-            isDrawing = false;
-            const canvas = document.getElementById('pitchCanvas');
-            const rect = canvas.getBoundingClientRect();
-            const endX = e.clientX - rect.left;
-            const endY = e.clientY - rect.top;
-
-            canvasLines.push({
-                x1: startX,
-                y1: startY,
-                x2: endX,
-                y2: endY,
-                tool: currentDrawTool
-            });
-
-            redrawCanvas();
-        }
-
-        function drawArrowHead(ctx, fromX, fromY, toX, toY) {
-            const headlen = 12;
-            const angle = Math.atan2(toY - fromY, toX - fromX);
-            ctx.setLineDash([]);
-            ctx.beginPath();
-            ctx.fillStyle = '#34d399';
-            ctx.moveTo(toX, toY);
-            ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
-            ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
-            ctx.fill();
-        }
-
+        function setDrawTool(t) { currentDrawTool = t; }
+        function clearCanvasLines() { canvasLines = []; redrawCanvas(); }
         function redrawCanvas() {
             const canvas = document.getElementById('pitchCanvas');
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            canvasLines.forEach(line => {
-                ctx.beginPath();
-                ctx.strokeStyle = '#34d399';
-                ctx.lineWidth = 2.5;
-
-                if (line.tool === 'pass') {
-                    ctx.setLineDash([6, 6]);
-                } else {
-                    ctx.setLineDash([]);
-                }
-
-                ctx.moveTo(line.x1, line.y1);
-                ctx.lineTo(line.x2, line.y2);
-                ctx.stroke();
-
-                if (line.tool === 'arrow') {
-                    drawArrowHead(ctx, line.x1, line.y1, line.x2, line.y2);
-                }
+            canvasLines.forEach(l => {
+                ctx.beginPath(); ctx.strokeStyle = '#34d399'; ctx.lineWidth = 2.5;
+                if (l.tool === 'pass') ctx.setLineDash([6, 6]); else ctx.setLineDash([]);
+                ctx.moveTo(l.x1, l.y1); ctx.lineTo(l.x2, l.y2); ctx.stroke();
             });
         }
 
-        function clearCanvasLines() {
-            canvasLines = [];
-            redrawCanvas();
-        }
-
-        // --- Formations & Player Nodes Render ---
-        function applyFormationPreset(presetKey) {
-            if (formations[presetKey]) {
-                currentPlayers = JSON.parse(JSON.stringify(formations[presetKey]));
-                renderPlayerOverlayNodes();
-            }
-        }
-
-        function setBoardTeamSide(side) {
-            selectedBoardSide = side;
-            document.getElementById('sideHomeBtn').className = side === 'home'
-                ? "p-2 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-medium text-center"
-                : "p-2 rounded-lg bg-slate-950 text-slate-400 border border-slate-800 text-xs font-medium text-center";
-
-            document.getElementById('sideAwayBtn').className = side === 'away'
-                ? "p-2 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-medium text-center"
-                : "p-2 rounded-lg bg-slate-950 text-slate-400 border border-slate-800 text-xs font-medium text-center";
-
-            renderPlayerOverlayNodes();
-        }
-
+        function applyFormationPreset(key) { if (formations[key]) { currentPlayers = JSON.parse(JSON.stringify(formations[key])); renderPlayerOverlayNodes(); } }
+        function setBoardTeamSide(s) { selectedBoardSide = s; renderPlayerOverlayNodes(); }
         function renderPlayerOverlayNodes() {
-            const container = document.getElementById('playersOverlay');
-            container.innerHTML = '';
-
+            const c = document.getElementById('playersOverlay'); c.innerHTML = '';
             currentPlayers.forEach(p => {
-                const node = document.createElement('div');
-                node.className = "absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-auto cursor-pointer group";
-                
-                // Flip X position if AWAY team selected
-                const xPos = selectedBoardSide === 'away' ? (100 - p.x) : p.x;
-                node.style.left = `${xPos}%`;
-                node.style.top = `${p.y}%`;
-
-                node.innerHTML = `
-                    <div class="w-8 h-8 rounded-full bg-slate-900 border-2 border-emerald-400 text-emerald-300 font-mono text-xs font-bold flex items-center justify-center shadow-lg group-hover:scale-110 transition-all">
-                        ${p.id}
-                    </div>
-                    <span class="text-[10px] font-mono bg-slate-950/90 px-1.5 py-0.5 rounded text-slate-300 border border-slate-800 mt-1 whitespace-nowrap">
-                        ${p.name}
-                    </span>
-                `;
-                container.appendChild(node);
+                const n = document.createElement('div');
+                n.className = "absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center";
+                n.style.left = `${selectedBoardSide === 'away' ? (100 - p.x) : p.x}%`; n.style.top = `${p.y}%`;
+                n.innerHTML = `<div class="w-8 h-8 rounded-full bg-slate-900 border-2 border-emerald-400 text-emerald-300 font-mono text-xs font-bold flex items-center justify-center">${p.id}</div>`;
+                c.appendChild(n);
             });
         }
 
-        // --- Board & Match Link Logic ---
         function updateBoardMatchDropdown() {
             const select = document.getElementById('boardMatchSelect');
             select.innerHTML = '<option value="">-- 単体ボードとして使用 --</option>';
             matches.forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m.id;
-                opt.textContent = `${m.home} vs ${m.away} (${m.date})`;
+                const opt = document.createElement('option'); opt.value = m.id; opt.textContent = `${m.home} vs ${m.away} (${m.date})`;
                 select.appendChild(opt);
             });
         }
 
-        function openBoardForMatch(matchId) {
-            activeMatchId = matchId;
-            document.getElementById('boardMatchSelect').value = matchId;
-            switchTab('board');
-        }
-
+        function openBoardForMatch(id) { activeMatchId = id; document.getElementById('boardMatchSelect').value = id; switchTab('board'); }
         function onBoardMatchSelectChange() {
-            const matchId = document.getElementById('boardMatchSelect').value;
-            activeMatchId = matchId;
-            if (matchId) {
-                const match = matches.find(m => m.id === matchId);
-                if (match && match.lines) {
-                    canvasLines = [...match.lines];
-                    redrawCanvas();
-                }
-            }
+            activeMatchId = document.getElementById('boardMatchSelect').value;
+            const match = matches.find(m => m.id === activeMatchId);
+            canvasLines = (match && match.lines) ? [...match.lines] : []; redrawCanvas();
         }
 
         function saveCurrentBoardToMatch() {
-            const matchId = document.getElementById('boardMatchSelect').value;
-            if (!matchId) {
-                alert('作戦配置を紐付ける対象の試合カードを選択してください。');
-                return;
-            }
-
-            const match = matches.find(m => m.id === matchId);
-            if (match) {
-                match.lines = [...canvasLines];
-                saveLocalData();
-                alert(`「${match.home} vs ${match.away}」のカードへ作戦線と配置を保存しました。`);
-            }
+            const match = matches.find(m => m.id === document.getElementById('boardMatchSelect').value);
+            if (match) { match.lines = [...canvasLines]; saveLocalData(); alert('保存しました。'); }
         }
 
-        // --- Observation Log Handlers ---
-        function openLogForMatch(matchId) {
-            activeMatchId = matchId;
-            const match = matches.find(m => m.id === matchId);
+        function openLogForMatch(id) {
+            activeMatchId = id;
+            const match = matches.find(m => m.id === id);
             if (!match) return;
-
             document.getElementById('logLeagueTag').textContent = match.league;
             document.getElementById('logTitle').textContent = `${match.home} vs ${match.away}`;
-            document.getElementById('logSubtext').textContent = `日時: ${match.date} ${match.time} | 放送局: ${match.channel || '未設定'}`;
-
+            document.getElementById('logSubtext').textContent = `${match.date} ${match.time}`;
             document.getElementById('logBuildUp').value = match.buildUp || '';
             document.getElementById('logDefensive').value = match.defensive || '';
             document.getElementById('logPlayers').value = match.players || '';
             document.getElementById('logSummary').value = match.summary || '';
-
             switchTab('logs');
         }
 
         function saveActiveMatchLog() {
-            if (!activeMatchId) {
-                alert('対象の試合カードが選択されていません。試合一覧より対象カードを選択してください。');
-                return;
-            }
-
             const match = matches.find(m => m.id === activeMatchId);
             if (match) {
                 match.buildUp = document.getElementById('logBuildUp').value;
                 match.defensive = document.getElementById('logDefensive').value;
                 match.players = document.getElementById('logPlayers').value;
                 match.summary = document.getElementById('logSummary').value;
-                saveLocalData();
-                alert('戦術考察ログをブラウザに保存しました。');
+                saveLocalData(); alert('考察を保存しました。');
             }
         }
 
-        // --- Modal Handling ---
-        function openModal(id) {
-            document.getElementById(id).classList.remove('hidden');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
-
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function handleNewMatchSubmit(e) {
             e.preventDefault();
-            const newMatch = {
+            matches.unshift({
                 id: 'm_' + Date.now(),
                 home: document.getElementById('inputHome').value,
                 away: document.getElementById('inputAway').value,
                 date: document.getElementById('inputDate').value,
                 time: document.getElementById('inputTime').value,
                 league: document.getElementById('inputLeague').value,
-                channel: document.getElementById('inputChannel').value,
-                buildUp: '',
-                defensive: '',
-                players: '',
-                summary: '',
-                lines: []
-            };
-
-            matches.unshift(newMatch);
-            saveLocalData();
-            renderMatches();
-            updateBoardMatchDropdown();
-            closeModal('newMatchModal');
-            document.getElementById('newMatchForm').reset();
-        }
-
-        // --- Export Functions ---
-        function exportAllNotebookData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(matches, null, 2));
-            const dlAnchorElem = document.createElement('a');
-            dlAnchorElem.setAttribute("href", dataStr);
-            dlAnchorElem.setAttribute("download", `tactico_backup_${new Date().toISOString().slice(0,10)}.json`);
-            dlAnchorElem.click();
-        }
-
-        function exportSingleLogToTxt() {
-            if (!activeMatchId) {
-                alert('対象の試合ログが開かれていません。');
-                return;
-            }
-            const match = matches.find(m => m.id === activeMatchId);
-            if (!match) return;
-
-            const content = `
-========================================
- TACTICO - SPOILERS-FREE FOOTBALL NOTEBOOK
-========================================
-対戦カード: ${match.home} vs ${match.away}
-大会・リーグ: ${match.league}
-日時/時間: ${match.date} ${match.time}
-放送/プラットフォーム: ${match.channel || '未設定'}
-
-[1] ビルドアップ構造 & プレス回避
-----------------------------------------
-${match.buildUp || '（未入力）'}
-
-[2] 守備ブロック & 撤退構造
-----------------------------------------
-${match.defensive || '（未入力）'}
-
-[3] キープレイヤーのタスク
-----------------------------------------
-${match.players || '（未入力）'}
-
-[4] 総合戦術総括
-----------------------------------------
-${match.summary || '（未入力）'}
-            `;
-
-            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Tactico_${match.home}_vs_${match.away}.txt`;
-            a.click();
+                buildUp: '', defensive: '', players: '', summary: '', lines: []
+            });
+            saveLocalData(); renderMatches(); updateBoardMatchDropdown(); closeModal('newMatchModal');
         }
     </script>
 </body>
